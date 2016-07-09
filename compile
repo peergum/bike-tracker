@@ -1,0 +1,12 @@
+#!/bin/bash
+
+rm electron_firmware*
+firmware=$(particle compile electron|tee /dev/stderr|awk '/Saved/ {print $NF}')
+if [ ! -z "$firmware" ]; then
+	echo "Flashing firmware $firmware"
+	a=1
+	while [ $a -eq 1 ]; do
+		particle serial flash $firmware
+		a=$?
+	done
+fi
