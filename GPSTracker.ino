@@ -20,6 +20,9 @@ and start incurring high data usage, blame yourself :)
 #define LON_ADDR LAT_ADDR+sizeof(lat)
 #define TS_ADDR LON_ADDR+sizeof(lon)
 
+#define BATTERY_DOWN_THRESHOLD = 0.50
+#define BATTERY_UP_THRESHOLD = 0.70
+
 ApplicationWatchdog wd(60000, System.reset);
 
 int soft_reset = D0;
@@ -78,6 +81,10 @@ int latLonCnt;
 float gpsThreshold = 0.0001; // 11.1m
 float gpsError = 0.1; // 1.1km
 
+int batteryWarning = 1;
+long lastBatteryWarning = 0;
+bool batteryDown = false; // under down threshold
+bool batteryUp = false; // over up threshold
 int gpsTrigger = 0;
 
 // Creating an AssetTracker named 't' for us to reference
@@ -241,22 +248,30 @@ void loop() {
     checkGPS();
 
     if (millis()-lastActive>=1000) {
-      /*Serial.println("millis: "+String(millis())
-      +", LastGPS: "+String(lastGPSPublish)
-      +", LastAccel: "+String(lastAccelPublish));*/
       lastActive = millis();
     }
-    /*if ((millis()-lastActive) > (delayIdleSleepMinutes*60*1000)
-      && (millis()-lastGPSPublish) < (delayGPSMinutes*60*1000)
-      && (millis()-lastAccelPublish) < (delayAccelMinutes*60*1000)) {
-        // sleep until wakeup or next publish possible
-        long sleepDuration = min(
-          delayGPSMinutes*60-(millis()-lastGPSPublish)/1000,
-          delayAccelMinutes*60-(millis()-lastAccelPublish)/1000
-          );
-        Serial.println("sleeping for " + String(sleepDuration) + " seconds");
-        System.sleep(SLEEP_MODE_DEEP,sleepDuration);
-    }*/
+
+    checkBattery();
+}
+
+void checkBattery() {
+  if (fuel.getSoC() <= BATTERY_DOWN_THRESHOLD
+    && millis()-lastBatteryWarning > 5*60000) {
+      batteryAlarm = String::format("Battery low, v=%.2f (%d%%)",
+        fuel.getVCell(), (int)ceil(fuel.getSoC()+0.5));
+      if (batteryWarning) {
+        Particle.publish("B", batteryAlarm, 60, PRIVATE);
+      }
+      lastBatteryWarning = millis();
+  } else if (fuel.getSoC() >= BATTERY_UP_THRESHOLD
+      && millis()-lastBatteryWarning>0 {
+        batteryAlarm = String::format("Battery back up, v=%.2f (%d%%)",
+          fuel.getVCell(), (int)ceil(fuel.getSoC()+0.5));
+        if (batteryWarning) {
+          Particle.publish("B", batteryAlarm, 60, PRIVATE);
+        }
+        lastBatteryWarning = 0;
+  }
 }
 
 void checkGPS() {
