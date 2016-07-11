@@ -210,7 +210,7 @@ void loop() {
       maxY=t.readY();
       maxZ=t.readZ();
       pubAccel = String::format("{\"t\":%d,\"x\":%d,\"y\":%d,\"z\":%d,\"v\":%.2f,\"c\":%d}",
-        now(),maxX,maxY,maxZ,fuel.getVCell(),(int)ceil(fuel.getSoC()+0.5));
+        Time.now(),maxX,maxY,maxZ,fuel.getVCell(),(int)ceil(fuel.getSoC()+0.5));
       Serial.println("- acceleration: "+String(maxAccel)+" - "+pubAccel);
     }
 
@@ -286,7 +286,7 @@ void checkGPS() {
           || millis()-lastGPSPublish > (delayGPSMinutes*60*1000))) {
           lat[gpsCnt] = newLat; //sumLat/latLonCnt;
           lon[gpsCnt] = newLon; //sumLon/latLonCnt;
-          ts[gpsCnt] = now();
+          ts[gpsCnt] = Time.now();
           Serial.println(String::format("Adding %f|%f to table[%d]",
             lat[gpsCnt],lon[gpsCnt],gpsCnt));
           gpsCnt++;
