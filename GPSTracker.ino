@@ -20,8 +20,8 @@ and start incurring high data usage, blame yourself :)
 #define LON_ADDR LAT_ADDR+sizeof(lat)
 #define TS_ADDR LON_ADDR+sizeof(lon)
 
-#define BATTERY_DOWN_THRESHOLD = 0.50
-#define BATTERY_UP_THRESHOLD = 0.70
+#define BATTERY_DOWN_THRESHOLD 0.50
+#define BATTERY_UP_THRESHOLD 0.70
 
 ApplicationWatchdog wd(60000, System.reset);
 
@@ -94,6 +94,7 @@ AssetTracker t = AssetTracker();
 FuelGauge fuel;
 
 void checkGPS(void);
+void checkBattery(void);
 
 // setup() and loop() are both required. setup() runs once when the device starts
 // and is used for registering functions and variables and initializing things
@@ -255,6 +256,7 @@ void loop() {
 }
 
 void checkBattery() {
+  String batteryAlarm;
   if (fuel.getSoC() <= BATTERY_DOWN_THRESHOLD
     && millis()-lastBatteryWarning > 5*60000) {
       batteryAlarm = String::format("Battery low, v=%.2f (%d%%)",
@@ -264,7 +266,7 @@ void checkBattery() {
       }
       lastBatteryWarning = millis();
   } else if (fuel.getSoC() >= BATTERY_UP_THRESHOLD
-      && millis()-lastBatteryWarning>0 {
+      && lastBatteryWarning>0) {
         batteryAlarm = String::format("Battery back up, v=%.2f (%d%%)",
           fuel.getVCell(), (int)ceil(fuel.getSoC()+0.5));
         if (batteryWarning) {
