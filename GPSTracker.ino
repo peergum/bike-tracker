@@ -7,6 +7,9 @@ disclaimers apply) for non-commercial applications. If you change it
 and start incurring high data usage, blame yourself :)
 --------------------------------------------------------------------*/
 
+PRODUCT_ID(752);
+PRODUCT_VERSION(2);
+
 /*SYSTEM_THREAD(ENABLED);*/
 
 // Getting the library
@@ -20,8 +23,8 @@ and start incurring high data usage, blame yourself :)
 #define LON_ADDR LAT_ADDR+sizeof(lat)
 #define TS_ADDR LON_ADDR+sizeof(lon)
 
-#define BATTERY_DOWN_THRESHOLD 0.50
-#define BATTERY_UP_THRESHOLD 0.70
+#define BATTERY_DOWN_THRESHOLD 50
+#define BATTERY_UP_THRESHOLD 70
 
 ApplicationWatchdog wd(60000, System.reset);
 
